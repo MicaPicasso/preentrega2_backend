@@ -8,7 +8,8 @@ const userSchema= new Schema({
         unique:true,
     },
     age: Number,
-    password: String
+    password: String,
+    loggedBy: String
 })
 
 

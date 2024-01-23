@@ -10,6 +10,7 @@ import cartRouter from './routes/cartRouter.js';
 import viewsRouter from './routes/viewsRouter.js';
 import sessionRouter from "./routes/sessionRouter.js"
 import userRouter from "./routes/userRouter.js"
+import githubLoginRouter from "./routes/github-loginRouter.js"
 import __dirname from "./utils.js"
 import mongoose from 'mongoose';
 import { password, PORT, db_name } from "./env.js"
@@ -17,6 +18,9 @@ import { allowInsecurePrototypeAccess } from '@handlebars/allow-prototype-access
 import Handlebars from 'handlebars';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import passport from 'passport';
+import initializePassport from './config/passport.config.js';
+
 
 const server= express()
 
@@ -41,6 +45,7 @@ server.use(express.urlencoded({extended:true}))
 
 
 
+
 const MONGO_URL=`mongodb+srv://micapicasso:${password}@cluster0.boiyenp.mongodb.net/${db_name}?retryWrites=true&w=majority`
 
 // Configuracion de Session
@@ -52,7 +57,6 @@ server.use(session(
         // connect mongo
         store: MongoStore.create({
             mongoUrl: MONGO_URL,
-            mongoOptions: {useNewUrlParser:true, useUnifiedTopology: true}, 
             ttl: 10 * 60
         }),
         secret: "coderS3cr3t",
@@ -60,13 +64,23 @@ server.use(session(
         saveUninitialized: true //guarda apenas se crea la sesion
     }
 ))
+
+
+// middleware de passport
+initializePassport();
+server.use(passport.initialize());
+server.use(passport.session());
+
+
+
+
 // Rutas
 server.use('/api/products', productsRouter);
 server.use('/api/cart', cartRouter);
 server.use('/', viewsRouter);
 server.use("/session", sessionRouter)
 server.use("/user", userRouter)
-
+server.use("/github", githubLoginRouter)
 
 
 
